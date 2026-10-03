@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
+import heroImage from "../imports/home.png";
+import localImageA from "../imports/food.png";
+import localImageB from "../imports/mountains.png";
+import localImageC from "../imports/typhoons.png";
+import localImageD from "../imports/barangay first aid.png";
+import localImageE from "../imports/school.png";
+import localImageF from "../imports/dignity kits.png";
+import localImageG from "../imports/fire kits.png";
+import localImageH from "../imports/evacuate.png";
 
-const photo =
-  "https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400";
+const photo = heroImage;
 
 type IconName =
   | "heart"
@@ -75,6 +83,17 @@ const categories = [
   { name: "Household", icon: "home" as IconName, note: "Furniture and home goods", color: "bg-[#FCE9A6] text-[#765A0A]" },
 ];
 
+const driveImages = [
+  localImageA,
+  localImageB,
+  localImageC,
+  localImageD,
+  localImageE,
+  localImageF,
+  localImageG,
+  localImageH,
+];
+
 const drives = [
   {
     id: 1,
@@ -85,7 +104,7 @@ const drives = [
     raised: 184200,
     goal: 250000,
     supporters: 218,
-    image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[0],
     tag: "Food",
     unit: undefined,
   },
@@ -98,7 +117,7 @@ const drives = [
     raised: 740,
     goal: 1000,
     supporters: 96,
-    image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[1],
     tag: "Clothing",
     unit: "rain kits",
   },
@@ -111,7 +130,7 @@ const drives = [
     raised: 426800,
     goal: 600000,
     supporters: 381,
-    image: "https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[2],
     tag: "Emergency",
     unit: undefined,
   },
@@ -124,7 +143,7 @@ const drives = [
     raised: 318,
     goal: 500,
     supporters: 74,
-    image: "https://images.unsplash.com/photo-1644726270363-e746b37b482b?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[3],
     tag: "Medical",
     unit: "kits",
   },
@@ -137,7 +156,7 @@ const drives = [
     raised: 682,
     goal: 900,
     supporters: 143,
-    image: "https://images.unsplash.com/photo-1710093072215-65070f9cf93e?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[4],
     tag: "Education",
     unit: "backpacks",
   },
@@ -150,7 +169,7 @@ const drives = [
     raised: 445,
     goal: 700,
     supporters: 109,
-    image: "https://images.unsplash.com/photo-1707504212217-f2ede27da954?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[5],
     tag: "Hygiene",
     unit: "kits",
   },
@@ -163,7 +182,7 @@ const drives = [
     raised: 84,
     goal: 140,
     supporters: 52,
-    image: "https://images.unsplash.com/photo-1643321610692-719deb378a33?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[6],
     tag: "Household",
     unit: "items",
   },
@@ -176,7 +195,7 @@ const drives = [
     raised: 226,
     goal: 350,
     supporters: 88,
-    image: "https://images.unsplash.com/photo-1652148439208-3e73641d0725?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=620",
+    image: driveImages[7],
     tag: "Essentials",
     unit: "kits",
   },

@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+  --font-serif: "DM Serif Display", serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #F5F4EF;
+  font-family: "DM Sans", sans-serif;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+label,
+select {
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(242, 201, 76, 0.5);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: #F2C94C;
+  color: #34418E;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid rgb(52 65 142 / 0.16);
+  background: white;
+  padding: 0.875rem 1rem;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #34418E;
+  box-shadow: 0 0 0 3px rgb(52 65 142 / 0.08);
+}

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { driveData } from "@/data/mockData";
+import { api } from "@/api/client";
 import { driveSchema, type DriveFormValues } from "@/schemas/forms";
 import { Notice, PageHeader } from "@/components/PagePrimitives";
 
@@ -53,19 +54,26 @@ export function ManageDrivesPage() {
 
 export function DriveFormPage() {
   const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<DriveFormValues>({
     resolver: zodResolver(driveSchema),
     defaultValues: { title: "", category: "", goal: 100, deadline: "", description: "", urgent: false },
   });
-  async function submit() {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    setSuccess(true);
+  async function submit(values: DriveFormValues) {
+    setSubmitError(null);
+    try {
+      await api.post("/drives", values);
+      setSuccess(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to create drive");
+    }
   }
   return (
     <>
       <PageHeader eyebrow="Organization portal" title="Create donation drive" description="Publish a specific, measurable request for your verified organization." />
       <main className="mx-auto max-w-3xl px-5 py-12 lg:px-8">
         {success && <Notice tone="success">Drive created successfully and submitted for admin review.</Notice>}
+        {submitError && <Notice tone="error">{submitError}</Notice>}
         <form onSubmit={handleSubmit(submit)} className="mt-5 space-y-5 bg-white p-6 sm:p-10">
           <FormField label="Drive title" error={errors.title?.message}><input {...register("title")} className="field" /></FormField>
           <div className="grid gap-5 sm:grid-cols-2">

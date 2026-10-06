@@ -21,3 +21,30 @@ export const driveSchema = z.object({
 });
 
 export type DriveFormValues = z.infer<typeof driveSchema>;
+
+export const loginSchema = z.object({
+  email: z.email("Enter a valid email address"),
+  password: z.string().min(8, "Password must have at least 8 characters"),
+});
+
+export type LoginFormValues = z.infer<typeof loginSchema>;
+
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, "Enter your full name"),
+    email: z.email("Enter a valid email address"),
+    password: z.string().min(8, "Password must have at least 8 characters"),
+    confirmPassword: z.string().min(1, "Confirm your password"),
+    role: z.enum(["donor", "collector"]),
+    organization: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .refine((data) => data.role !== "collector" || data.organization.trim().length >= 2, {
+    message: "Enter your organization name",
+    path: ["organization"],
+  });
+
+export type RegisterFormValues = z.infer<typeof registerSchema>;

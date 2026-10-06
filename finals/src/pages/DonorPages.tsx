@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { donationData, driveData } from "@/data/mockData";
+import { donationData, driveData, type Drive } from "@/data/mockData";
+import { useApiResource } from "@/hooks/useApiResource";
 import { donationSchema, type DonationFormValues } from "@/schemas/forms";
 import { api } from "@/api/client";
 import { Notice, PageHeader } from "@/components/PagePrimitives";
 
 export function NewDonationPage() {
+  const { data: drives } = useApiResource<Drive[]>("/drives", driveData);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<DonationFormValues>({
@@ -34,7 +36,7 @@ export function NewDonationPage() {
       <main className="mx-auto max-w-3xl px-5 py-12 lg:px-8">
         {submitError && <Notice tone="error">{submitError}</Notice>}
         <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-6 bg-white p-6 shadow-sm sm:p-10">
-          <Field label="Donation drive" error={errors.driveId?.message}><select {...register("driveId")} className="field"><option value="">Select a drive</option>{driveData.map((drive) => <option key={drive.id} value={drive.id}>{drive.title}</option>)}</select></Field>
+          <Field label="Donation drive" error={errors.driveId?.message}><select {...register("driveId")} className="field"><option value="">Select a drive</option>{drives.map((drive) => <option key={drive.id} value={drive.id}>{drive.title}</option>)}</select></Field>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Donation type" error={errors.type?.message}><select {...register("type")} className="field"><option value="">Select type</option>{["Money", "Food", "Clothing", "Education", "Medical", "Household"].map((type) => <option key={type}>{type}</option>)}</select></Field>
             <Field label="Quantity" error={errors.quantity?.message}><input {...register("quantity", { valueAsNumber: true })} type="number" min="1" className="field" /></Field>
@@ -54,14 +56,21 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 }
 
 export function MyDonationsPage() {
+  const { data } = useApiResource<typeof donationData>("/donations", donationData);
   const [items, setItems] = useState(donationData);
+  useEffect(() => { setItems(data); }, [data]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  function removeDonation() {
+  async function removeDonation() {
     if (!deleteId) return;
-    setItems((current) => current.filter((item) => item.id !== deleteId));
+    try {
+      await api.delete(`/donations/${deleteId}`);
+      setItems((current) => current.filter((item) => item.id !== deleteId));
+      setMessage("Donation record deleted successfully.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to delete donation.");
+    }
     setDeleteId(null);
-    setMessage("Donation record deleted successfully.");
   }
   return (
     <>
@@ -81,7 +90,8 @@ export function MyDonationsPage() {
 
 export function DonationTrackingPage() {
   const { donationId } = useParams();
-  const donation = donationData.find((item) => item.id === donationId);
+  const { data: donation, loading } = useApiResource<(typeof donationData)[number] | null>(`/donations/${donationId}`, null);
+  if (loading) return <main className="mx-auto max-w-3xl px-5 py-24 text-center">Loading…</main>;
   if (!donation) return <main className="mx-auto max-w-3xl px-5 py-24 text-center"><h1 className="text-4xl font-bold">Donation not found</h1><Link to="/donations" className="mt-6 inline-block text-[#B88910]">Return to donations</Link></main>;
   const steps = ["Submitted", "Approved", "Collector assigned", "Picked up", "Received"];
   const active = donation.status === "Received" ? 4 : donation.status === "Approved" ? 1 : 0;

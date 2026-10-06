@@ -9,6 +9,7 @@ import { NotFoundPage, SignInPage } from "@/pages/AuthPages";
 
 export const router = createBrowserRouter([
   { path: "/", Component: LandingPage },
+  { path: "/signin", Component: SignInPage },
   {
     Component: AppShell,
     children: [
@@ -17,7 +18,6 @@ export const router = createBrowserRouter([
       { path: "drives/:driveId", Component: DriveDetailPage },
       { path: "match", Component: MatchingPage },
       { path: "centers", Component: CollectionCentersPage },
-      { path: "signin", Component: SignInPage },
 
       // Signed-in users
       {

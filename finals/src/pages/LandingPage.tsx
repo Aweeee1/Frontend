@@ -702,7 +702,7 @@ function App() {
                 ))}
               </div>
             </div>
-            <button onClick={() => { setSignupRole("collector"); openAuth("signup"); }} className="group mt-16 flex w-full items-center justify-between border-b-2 border-[#34418E] pb-4 text-left text-xl font-bold transition hover:pb-6">
+            <button onClick={() => navigate("/signup?role=collector")} className="group mt-16 flex w-full items-center justify-between border-b-2 border-[#34418E] pb-4 text-left text-xl font-bold transition hover:pb-6">
               Create an organization <Icon name="arrow" className="size-6 transition group-hover:translate-x-2" />
             </button>
           </div>

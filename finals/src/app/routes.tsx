@@ -5,11 +5,12 @@ import LandingPage from "@/pages/LandingPage";
 import { BrowseDrivesPage, DriveDetailPage, MatchingPage } from "@/pages/DrivesPages";
 import { DonationTrackingPage, MyDonationsPage, NewDonationPage, PickupRequestsPage } from "@/pages/DonorPages";
 import { CollectionCentersPage, CollectorDashboardPage, DriveFormPage, ManageDrivesPage } from "@/pages/CollectorPages";
-import { NotFoundPage, SignInPage } from "@/pages/AuthPages";
+import { NotFoundPage, SignInPage, SignUpPage } from "@/pages/AuthPages";
 
 export const router = createBrowserRouter([
   { path: "/", Component: LandingPage },
   { path: "/signin", Component: SignInPage },
+  { path: "/signup", Component: SignUpPage },
   {
     Component: AppShell,
     children: [

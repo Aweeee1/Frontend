@@ -54,24 +54,41 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
-      <div className="mb-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-[#B88910]">Secure access</p>
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[540px]">
+      <div className="mb-5 flex items-center justify-between">
+        <span className="text-sm font-bold tracking-[0.18em] text-[#34418E]">DAMAYAN</span>
+        <Link to="/" className="grid size-10 place-items-center rounded-full bg-[#34418E]/5 text-[#34418E] transition hover:bg-[#34418E]/10" aria-label="Close sign in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-5"><path d="m18 6-12 12M6 6l12 12" /></svg>
+        </Link>
       </div>
-      <h1 className="text-4xl font-bold text-[#34418E] leading-tight">Welcome back</h1>
-      <p className="mt-2 text-sm text-[#6B7C8F]">Sign in to your account and track your donations</p>
-      {submitError && <div className="mt-6"><Notice tone="error">{submitError}</Notice></div>}
+
+      <h1 className="text-4xl font-bold tracking-[-0.05em] text-[#34418E]">Welcome back</h1>
+      <p className="mt-2 text-sm leading-6 text-[#6B7C8F]">Sign in to follow donations, track impact, and manage your account.</p>
+
+      {submitError && (
+        <div className="mt-6">
+          <Notice tone="error">{submitError}</Notice>
+        </div>
+      )}
+
       <Field label="Email address" error={errors.email?.message}>
-        <input {...register("email")} type="email" autoComplete="email" placeholder="you@example.com" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
+        <input {...register("email")} type="email" autoComplete="email" placeholder="you@example.com" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
       </Field>
+
       <Field label="Password" error={errors.password?.message}>
-        <input {...register("password")} type="password" autoComplete="current-password" placeholder="Enter your password" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
+        <input {...register("password")} type="password" autoComplete="current-password" placeholder="At least 8 characters" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
       </Field>
-      <button disabled={isSubmitting} className="mt-8 w-full rounded-lg bg-[#34418E] px-6 py-3.5 font-bold text-white shadow-sm transition hover:bg-[#293675] active:shadow-inner disabled:opacity-60">
+
+      <div className="mt-3 flex items-center justify-end">
+        <button type="button" className="text-sm font-semibold text-[#4A5BB0] transition hover:text-[#34418E]">Forgot password?</button>
+      </div>
+
+      <button disabled={isSubmitting} className="mt-8 w-full rounded-full bg-[#34418E] px-6 py-4 font-bold text-white shadow-lg shadow-[#34418E]/15 transition hover:-translate-y-0.5 hover:bg-[#293675] disabled:opacity-60">
         {isSubmitting ? "Signing in…" : "Sign in"}
       </button>
+
       <p className="mt-7 text-center text-sm text-[#6B7C8F]">
-        Don't have an account yet?{" "}
+        Don’t have an account yet?{" "}
         <Link to="/signin?mode=create" className="font-bold text-[#B88910] transition hover:text-[#A67A08]">Create an account</Link>
       </p>
     </form>
@@ -103,44 +120,70 @@ function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
-      <div className="mb-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-[#B88910]">Join DAMAYAN</p>
-      </div>
-      <h1 className="text-4xl font-bold text-[#34418E] leading-tight">Create your account</h1>
-      <p className="mt-2 text-sm text-[#6B7C8F]">Join our community of donors and organizations doing good</p>
-      {submitError && <div className="mt-6"><Notice tone="error">{submitError}</Notice></div>}
-
-      <div className="mt-8 grid grid-cols-2 gap-3">
-        {[["donor", "I want to donate"], ["collector", "I run drives"]].map(([value, label]) => (
-          <label key={value} className={`cursor-pointer rounded-lg border-2 p-4 text-center text-sm font-bold transition ${role === value ? "border-[#34418E] bg-[#ECEEF7] text-[#34418E]" : "border-[#34418E]/15 text-[#6B7C8F] hover:border-[#34418E]/30"}`}>
-            <input {...register("role")} type="radio" value={value} className="sr-only" />
-            {label}
-          </label>
-        ))}
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[740px]">
+      <div className="mb-5 flex items-center justify-between">
+        <span className="text-sm font-bold tracking-[0.18em] text-[#34418E]">DAMAYAN</span>
+        <Link to="/" className="grid size-10 place-items-center rounded-full bg-[#34418E]/5 text-[#34418E] transition hover:bg-[#34418E]/10" aria-label="Close create account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-5"><path d="m18 6-12 12M6 6l12 12" /></svg>
+        </Link>
       </div>
 
-      <Field label="Full name" error={errors.name?.message}>
-        <input {...register("name")} autoComplete="name" placeholder="John Doe" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
-      </Field>
-      {role === "collector" && (
-        <Field label="Organization name" error={errors.organization?.message}>
-          <input {...register("organization")} placeholder="Your organization" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
-        </Field>
+      <h1 className="text-4xl font-bold tracking-[-0.05em] text-[#34418E]">Join the giving community</h1>
+      <p className="mt-2 text-sm leading-6 text-[#6B7C8F]">Create an account as a donor or apply to become a verified collector.</p>
+
+      {submitError && (
+        <div className="mt-6">
+          <Notice tone="error">{submitError}</Notice>
+        </div>
       )}
-      <Field label="Email address" error={errors.email?.message}>
-        <input {...register("email")} type="email" autoComplete="email" placeholder="you@example.com" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
-      </Field>
-      <Field label="Password" error={errors.password?.message}>
-        <input {...register("password")} type="password" autoComplete="new-password" placeholder="At least 8 characters" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
-      </Field>
-      <Field label="Confirm password" error={errors.confirmPassword?.message}>
-        <input {...register("confirmPassword")} type="password" autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-lg border border-[#34418E]/15 bg-white px-4 py-3 text-[#34418E] placeholder-[#6B7C8F]/50 transition focus:border-[#34418E]/40 focus:bg-white focus:ring-1 focus:ring-[#34418E]/20" />
-      </Field>
 
-      <button disabled={isSubmitting} className="mt-8 w-full rounded-lg bg-[#34418E] px-6 py-3.5 font-bold text-white shadow-sm transition hover:bg-[#293675] active:shadow-inner disabled:opacity-60">
-        {isSubmitting ? "Creating account…" : "Create account"}
+      <div className="mt-7">
+        <p className="mb-3 text-sm font-semibold text-[#34418E]">I’m joining as</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[["donor", "Donor"], ["collector", "Collector"]].map(([value, label]) => (
+            <label key={value} className={`cursor-pointer rounded-2xl border p-4 text-base font-semibold transition ${role === value ? "border-[#B88910] bg-[#FFF4D6] text-[#7A5A12] shadow-sm" : "border-[#34418E]/12 bg-white text-[#34418E] hover:border-[#34418E]/25"}`}>
+              <input {...register("role")} type="radio" value={value} className="sr-only" />
+              <span className="flex items-center justify-center gap-3">
+                {value === "donor" ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-5"><path d="M12 21s-7.5-4.7-9.5-8.4C.9 10.3 2.9 5 7.2 5c2.2 0 3.2 1.2 4.8 3.2C13.6 6.2 14.6 5 16.8 5c4.3 0 6.3 5.3 4.7 7.6C19.5 16.3 12 21 12 21Z" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-5"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" /><circle cx="9.5" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                )}
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-5">
+        <Field label={role === "collector" ? "Authorized representative" : "Full name"} error={errors.name?.message}>
+          <input {...register("name")} autoComplete="name" placeholder={role === "collector" ? "Representative’s full legal name" : "Your full name"} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
+        </Field>
+
+        {role === "collector" && (
+          <Field label="Organization name" error={errors.organization?.message}>
+            <input {...register("organization")} placeholder="Your organization" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
+          </Field>
+        )}
+
+        <Field label="Email address" error={errors.email?.message}>
+          <input {...register("email")} type="email" autoComplete="email" placeholder="you@example.com" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
+        </Field>
+
+        <Field label="Password" error={errors.password?.message}>
+          <input {...register("password")} type="password" autoComplete="new-password" placeholder="At least 8 characters" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
+        </Field>
+
+        <Field label="Confirm password" error={errors.confirmPassword?.message}>
+          <input {...register("confirmPassword")} type="password" autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 text-[#34418E] shadow-sm outline-none placeholder:text-[#6B7C8F]/65 transition focus:border-[#4A5BB0] focus:ring-2 focus:ring-[#4A5BB0]/10" />
+        </Field>
+      </div>
+
+      <button disabled={isSubmitting} className="mt-8 w-full rounded-full bg-[#34418E] px-6 py-4 font-bold text-white shadow-lg shadow-[#34418E]/15 transition hover:-translate-y-0.5 hover:bg-[#293675] disabled:opacity-60">
+        {isSubmitting ? "Creating account…" : role === "collector" ? "Submit for verification" : "Create my account"}
       </button>
+
       <p className="mt-7 text-center text-sm text-[#6B7C8F]">
         Already have an account?{" "}
         <Link to="/signin" className="font-bold text-[#B88910] transition hover:text-[#A67A08]">Sign in</Link>
@@ -154,24 +197,14 @@ export function SignInPage() {
   const creating = params.get("mode") === "create";
 
   return (
-    <main className="grid min-h-screen bg-[#F5F4EF] text-[#34418E] lg:grid-cols-2">
-      <section className="hidden bg-gradient-to-b from-[#34418E] to-[#293675] p-16 text-white lg:flex lg:flex-col lg:justify-between">
-        <div>
-          <span className="font-bold tracking-[.18em] text-[#F2C94C] text-lg">DAMAYAN</span>
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(242,201,76,0.20),_transparent_26%),linear-gradient(135deg,#F5F4EF_0%,#EEF2FF_100%)] px-4 py-8 text-[#34418E] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[920px]">
+        <div className="rounded-[2rem] border border-[#34418E]/10 bg-[#F5F4EF]/90 p-4 shadow-[0_22px_70px_rgba(31,41,55,0.10)] backdrop-blur-xl sm:p-7">
+          <div className="mx-auto max-w-[760px]">
+            {creating ? <RegisterForm /> : <LoginForm />}
+          </div>
         </div>
-        <div>
-          <p className="font-serif text-6xl italic text-[#F2C94C] leading-tight">Give with proof.</p>
-          <p className="mt-6 max-w-md text-white/70 text-base leading-relaxed">One accountable website for donors and verified organizations.</p>
-        </div>
-        <div className="space-y-2 text-xs text-white/50">
-          <p>✓ Track your donations</p>
-          <p>✓ Verified organizations</p>
-          <p>✓ Transparent giving</p>
-        </div>
-      </section>
-      <section className="flex items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
-        {creating ? <RegisterForm /> : <LoginForm />}
-      </section>
+      </div>
     </main>
   );
 }

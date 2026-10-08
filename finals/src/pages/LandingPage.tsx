@@ -269,7 +269,6 @@ function App() {
   const [authMode, setAuthMode] = useState<"signin" | "signup" | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [signupRole, setSignupRole] = useState<"donor" | "collector">("donor");
-  const [collectorApplicationSent, setCollectorApplicationSent] = useState(false);
   const [matchType, setMatchType] = useState("School supplies");
   const [donationMethod, setDonationMethod] = useState<"pickup" | "dropoff" | "center">("pickup");
   const [selectedCenter, setSelectedCenter] = useState(collectionCenters[0].name);
@@ -387,9 +386,6 @@ function App() {
 
   function openAuth(mode: "signin" | "signup") {
     setAuthMode(mode);
-    if (mode === "signup") {
-      setCollectorApplicationSent(false);
-    }
   }
 
   return (
@@ -932,41 +928,21 @@ function App() {
               <div>
                 <span className="text-sm font-bold tracking-[0.16em] text-[#34418E]">DAMAYAN</span>
                 <h2 className="mt-5 text-3xl font-bold tracking-[-0.04em]">
-                  {collectorApplicationSent ? "Application received" : authMode === "signin" ? "Welcome back" : "Join the giving community"}
+                  {authMode === "signin" ? "Welcome back" : "Join the giving community"}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-[#6B7C8F]">
-                  {collectorApplicationSent
-                    ? "Our verification team will review your organization before collector access is granted."
-                    : authMode === "signin"
-                      ? "Sign in to follow your donations and impact."
-                      : "Create an account as a donor or apply to become a verified collector."}
+                  {authMode === "signin"
+                    ? "Sign in to follow your donations and impact."
+                    : "Create an account as a donor or apply to become a verified collector."}
                 </p>
               </div>
               <button onClick={() => setAuthMode(null)} className="grid size-10 shrink-0 place-items-center rounded-full bg-[#34418E]/5" aria-label="Close"><Icon name="close" /></button>
             </div>
 
-            {collectorApplicationSent ? (
-              <div className="py-10 text-center">
-                <span className="mx-auto grid size-20 place-items-center rounded-full bg-[#E7EAF5] text-[#3C4C9D]"><Icon name="shield" className="size-9" /></span>
-                <h3 className="mt-6 text-xl font-bold">Verification is now pending</h3>
-                <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#6B7C8F]">We’ll check the organization registration, representative identity, and supporting documents. You’ll receive an email when a decision is ready.</p>
-                <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-white p-4 text-left text-sm">
-                  <div className="flex items-center gap-3"><Icon name="check" className="size-4 text-[#4A5BB0]" /><span>Application securely submitted</span></div>
-                  <div className="mt-3 flex items-center gap-3"><span className="size-4 rounded-full border-2 border-[#F2C94C]" /><span>Identity and organization review</span></div>
-                  <div className="mt-3 flex items-center gap-3 text-[#6B7C8F]"><span className="size-4 rounded-full border-2 border-[#34418E]/15" /><span>Collector account activation</span></div>
-                </div>
-                <button onClick={() => setAuthMode(null)} className="mt-8 rounded-full bg-[#34418E] px-7 py-3.5 font-bold text-white">Done</button>
-              </div>
-            ) : (
-            <>
             <form className="mt-7 space-y-4" onSubmit={(event) => {
               event.preventDefault();
-              if (authMode === "signup" && signupRole === "collector") {
-                setCollectorApplicationSent(true);
-              } else {
-                setSignedIn(true);
-                setAuthMode(null);
-              }
+              setSignedIn(true);
+              setAuthMode(null);
             }}>
               {authMode === "signup" && (
                 <>
@@ -1076,8 +1052,6 @@ function App() {
                 {authMode === "signin" ? "Create an account" : "Sign in"}
               </button>
             </p>
-            </>
-            )}
           </div>
         </div>
       )}

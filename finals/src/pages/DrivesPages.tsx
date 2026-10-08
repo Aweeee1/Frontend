@@ -62,7 +62,7 @@ export function BrowseDrivesPage() {
 
 export function DriveDetailPage() {
   const { driveId } = useParams();
-  const { data: drive, loading } = useApiResource<Drive | null>(`/drives/${driveId}`, null);
+  const { data: drive, loading } = useApiResource<Drive | null>(`/drives/${driveId}`, driveData.find((item) => item.id === driveId) ?? null);
   if (loading) return <main className="mx-auto max-w-3xl px-5 py-24 text-center">Loading…</main>;
   if (!drive) return <main className="mx-auto max-w-3xl px-5 py-24 text-center"><p className="text-sm font-bold uppercase text-[#B88910]">404</p><h1 className="mt-3 text-4xl font-bold">Drive not found</h1><Link to="/drives" className="mt-6 inline-block rounded-full bg-[#34418E] px-5 py-3 text-white">Return to drives</Link></main>;
   return (

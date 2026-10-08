@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, TOKEN_KEY } from "@/api/client";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { api, TOKEN_KEY, UNAUTHORIZED_EVENT } from "@/api/client";
 import type { LoginFormValues, RegisterFormValues } from "@/schemas/forms";
 
 export type User = {
@@ -34,22 +34,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  function save(data: { token: string; user: User }) {
+  // Any protected request that comes back 401 signs the user out
+  useEffect(() => {
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, []);
+
+  const save = useCallback((data: { token: string; user: User }) => {
     localStorage.setItem(TOKEN_KEY, data.token);
     setUser(data.user);
     return data.user;
-  }
+  }, []);
 
-  const value: AuthState = {
-    user,
-    loading,
-    login: async (values) => save((await api.post("/auth/login", values)).data),
-    register: async (values) => save((await api.post("/auth/register", values)).data),
-    logout: () => {
-      localStorage.removeItem(TOKEN_KEY);
-      setUser(null);
-    },
-  };
+  const value = useMemo<AuthState>(
+    () => ({
+      user,
+      loading,
+      login: async (values) => save((await api.post("/auth/login", values)).data),
+      register: async (values) => save((await api.post("/auth/register", values)).data),
+      logout: () => {
+        localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
+      },
+    }),
+    [user, loading, save],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

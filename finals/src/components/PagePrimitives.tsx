@@ -23,3 +23,13 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "error" | 
 export function LoadingState() {
   return <div className="grid min-h-64 place-items-center"><div className="size-9 animate-spin rounded-full border-4 border-[#34418E]/15 border-t-[#34418E]" aria-label="Loading" /></div>;
 }
+
+export function FormField({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-bold">{label}</span>
+      {children}
+      {error && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}
+    </label>
+  );
+}

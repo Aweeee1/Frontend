@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Link, useRouteError } from "react-router";
 import AppShell from "@/components/AppShell";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import LandingPage from "@/pages/LandingPage";
@@ -7,12 +7,26 @@ import { DonationTrackingPage, MyDonationsPage, NewDonationPage, PickupRequestsP
 import { CollectionCentersPage, CollectorDashboardPage, DriveFormPage, ManageDrivesPage } from "@/pages/CollectorPages";
 import { NotFoundPage, SignInPage, SignUpPage } from "@/pages/AuthPages";
 
+function RouteError() {
+  const error = useRouteError();
+  return (
+    <main className="grid min-h-screen place-items-center bg-[#F5F4EF] px-5 text-center text-[#34418E]">
+      <div>
+        <h1 className="text-4xl font-bold">Something went wrong</h1>
+        <p className="mt-3 text-[#6B7C8F]">{error instanceof Error ? error.message : "An unexpected error occurred."}</p>
+        <Link to="/" className="mt-6 inline-block rounded-full bg-[#34418E] px-5 py-3 font-bold text-white">Back to home</Link>
+      </div>
+    </main>
+  );
+}
+
 export const router = createBrowserRouter([
-  { path: "/", Component: LandingPage },
+  { path: "/", Component: LandingPage, ErrorBoundary: RouteError },
   { path: "/signin", Component: SignInPage },
   { path: "/signup", Component: SignUpPage },
   {
     Component: AppShell,
+    ErrorBoundary: RouteError,
     children: [
       // Public
       { path: "drives", Component: BrowseDrivesPage },

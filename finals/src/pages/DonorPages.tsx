@@ -5,8 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { donationData, driveData, type Drive } from "@/data/mockData";
 import { useApiResource } from "@/hooks/useApiResource";
 import { donationSchema, type DonationFormValues } from "@/schemas/forms";
-import { api } from "@/api/client";
-import { Notice, PageHeader } from "@/components/PagePrimitives";
+import { api, hasBackend } from "@/api/client";
+import { FormField as Field, Notice, PageHeader } from "@/components/PagePrimitives";
 
 export function NewDonationPage() {
   const { data: drives } = useApiResource<Drive[]>("/drives", driveData);
@@ -20,7 +20,7 @@ export function NewDonationPage() {
   async function onSubmit(values: DonationFormValues) {
     setSubmitError(null);
     try {
-      if (import.meta.env.VITE_API_URL) await api.post("/donations", values);
+      if (hasBackend) await api.post("/donations", values);
       else await new Promise((resolve) => setTimeout(resolve, 500));
       setSuccess(true);
     } catch (error) {
@@ -51,21 +51,24 @@ export function NewDonationPage() {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-2 block text-sm font-bold">{label}</span>{children}{error && <span className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>;
-}
-
 export function MyDonationsPage() {
-  const { data } = useApiResource<typeof donationData>("/donations", donationData);
-  const [items, setItems] = useState(donationData);
-  useEffect(() => { setItems(data); }, [data]);
+  const { data, error } = useApiResource<typeof donationData>("/donations", donationData);
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
+  const items = data.filter((item) => !removedIds.includes(item.id));
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  // Close the dialog with Escape
+  useEffect(() => {
+    if (!deleteId) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setDeleteId(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [deleteId]);
   async function removeDonation() {
     if (!deleteId) return;
     try {
-      await api.delete(`/donations/${deleteId}`);
-      setItems((current) => current.filter((item) => item.id !== deleteId));
+      if (hasBackend) await api.delete(`/donations/${deleteId}`);
+      setRemovedIds((current) => [...current, deleteId]);
       setMessage("Donation record deleted successfully.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to delete donation.");
@@ -76,6 +79,7 @@ export function MyDonationsPage() {
     <>
       <PageHeader eyebrow="Donor account" title="My donations" description="Review approval, pickup, receiving, and documentation status." action={<Link to="/donations/new" className="rounded-full bg-[#F2C94C] px-5 py-3 font-bold">New donation</Link>} />
       <main className="mx-auto max-w-6xl px-5 py-10 lg:px-8">
+        {error && <Notice>{error}</Notice>}
         {message && <Notice tone="success">{message}</Notice>}
         {items.length === 0 ? <div className="mt-6 border border-dashed p-12 text-center"><h2 className="text-xl font-bold">No donation records</h2><p className="mt-2 text-[#6B7C8F]">Your submitted donations will appear here.</p></div> : (
           <div className="mt-6 overflow-x-auto bg-white">
@@ -83,7 +87,7 @@ export function MyDonationsPage() {
           </div>
         )}
       </main>
-      {deleteId && <div className="fixed inset-0 z-50 grid place-items-center bg-[#1D2758]/60 p-5"><div className="max-w-sm bg-white p-7"><h2 className="text-xl font-bold">Delete donation?</h2><p className="mt-3 text-sm text-[#6B7C8F]">This pending record will be permanently removed.</p><div className="mt-6 flex gap-3"><button onClick={() => setDeleteId(null)} className="flex-1 border px-4 py-3 font-bold">Cancel</button><button onClick={removeDonation} className="flex-1 bg-red-700 px-4 py-3 font-bold text-white">Delete</button></div></div></div>}
+      {deleteId && <div className="fixed inset-0 z-50 grid place-items-center bg-[#1D2758]/60 p-5" onMouseDown={(event) => event.target === event.currentTarget && setDeleteId(null)}><div role="dialog" aria-modal="true" aria-labelledby="delete-title" className="max-w-sm bg-white p-7"><h2 id="delete-title" className="text-xl font-bold">Delete donation?</h2><p className="mt-3 text-sm text-[#6B7C8F]">This pending record will be permanently removed.</p><div className="mt-6 flex gap-3"><button onClick={() => setDeleteId(null)} className="flex-1 border px-4 py-3 font-bold">Cancel</button><button onClick={removeDonation} className="flex-1 bg-red-700 px-4 py-3 font-bold text-white">Delete</button></div></div></div>}
     </>
   );
 }

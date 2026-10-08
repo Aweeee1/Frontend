@@ -3,9 +3,9 @@ import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { driveData } from "@/data/mockData";
-import { api } from "@/api/client";
+import { api, hasBackend } from "@/api/client";
 import { driveSchema, type DriveFormValues } from "@/schemas/forms";
-import { Notice, PageHeader } from "@/components/PagePrimitives";
+import { FormField, Notice, PageHeader } from "@/components/PagePrimitives";
 
 export function CollectionCentersPage() {
   const centers = [
@@ -62,7 +62,8 @@ export function DriveFormPage() {
   async function submit(values: DriveFormValues) {
     setSubmitError(null);
     try {
-      await api.post("/drives", values);
+      if (hasBackend) await api.post("/drives", values);
+      else await new Promise((resolve) => setTimeout(resolve, 500));
       setSuccess(true);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unable to create drive");
@@ -88,8 +89,4 @@ export function DriveFormPage() {
       </main>
     </>
   );
-}
-
-function FormField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-2 block text-sm font-bold">{label}</span>{children}{error && <span className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>;
 }

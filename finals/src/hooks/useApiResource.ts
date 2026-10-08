@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/api/client";
 
 export function useApiResource<T>(path: string, fallback: T) {
+  // Keep the latest fallback without making it an effect dependency
+  const fallbackRef = useRef(fallback);
+  fallbackRef.current = fallback;
+
   const [data, setData] = useState<T>(fallback);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -9,7 +13,10 @@ export function useApiResource<T>(path: string, fallback: T) {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    api.get<T>(path)
+    setError(null);
+    setData(fallbackRef.current); // don't show the previous path's data while loading
+    api
+      .get<T>(path)
       .then((response) => {
         if (active) setData(response.data);
       })

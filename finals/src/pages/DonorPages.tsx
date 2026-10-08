@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { donationData, driveData, type Drive } from "@/data/mockData";
@@ -10,25 +10,39 @@ import { FormField as Field, Notice, PageHeader } from "@/components/PagePrimiti
 
 export function NewDonationPage() {
   const { data: drives } = useApiResource<Drive[]>("/drives", driveData);
+  const [searchParams] = useSearchParams();
   const [success, setSuccess] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<DonationFormValues>({
+  const { register, handleSubmit, setValue, getValues, formState: { errors, isSubmitting } } = useForm<DonationFormValues>({
     resolver: zodResolver(donationSchema),
     defaultValues: { driveId: "", type: "", quantity: 1, method: "pickup", details: "", contactNumber: "" },
   });
 
+  // Preselect the drive passed from "Donate" buttons (?drive=<id or title>)
+  const requestedDrive = searchParams.get("drive");
+  useEffect(() => {
+    if (!requestedDrive || getValues("driveId")) return;
+    const match = drives.find((drive) => drive.id === requestedDrive || drive.title === requestedDrive);
+    if (match) setValue("driveId", match.id);
+  }, [requestedDrive, drives, getValues, setValue]);
+
   async function onSubmit(values: DonationFormValues) {
     setSubmitError(null);
     try {
-      if (hasBackend) await api.post("/donations", values);
-      else await new Promise((resolve) => setTimeout(resolve, 500));
+      if (hasBackend) {
+        const response = await api.post("/donations", values);
+        setReference(response.data?.code ?? response.data?.donation?.code ?? response.data?.id ?? null);
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
       setSuccess(true);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unable to submit donation");
     }
   }
 
-  if (success) return <main className="mx-auto max-w-xl px-5 py-24 text-center"><div className="mx-auto grid size-20 place-items-center rounded-full bg-[#F2C94C] text-3xl">✓</div><h1 className="mt-6 text-4xl font-bold">Donation submitted</h1><p className="mt-3 text-[#6B7C8F]">Your record DON-2026-00126 is pending review. Its receiving QR code will activate after approval.</p><Link to="/donations" className="mt-8 inline-block rounded-full bg-[#34418E] px-6 py-3 font-bold text-white">View my donations</Link></main>;
+  if (success) return <main className="mx-auto max-w-xl px-5 py-24 text-center"><div className="mx-auto grid size-20 place-items-center rounded-full bg-[#F2C94C] text-3xl">✓</div><h1 className="mt-6 text-4xl font-bold">Donation submitted</h1><p className="mt-3 text-[#6B7C8F]">{reference ? <>Your record <span className="font-mono font-bold">{reference}</span> is pending review.</> : "Your donation is pending review."} Its receiving QR code will activate after approval.</p><Link to="/donations" className="mt-8 inline-block rounded-full bg-[#34418E] px-6 py-3 font-bold text-white">View my donations</Link></main>;
 
   return (
     <>

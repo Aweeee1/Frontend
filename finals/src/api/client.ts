@@ -18,8 +18,31 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// MongoDB-backed APIs return `_id`, but the UI keys everything off `id`.
+// Donations are addressed by their reference `code`, so prefer that for them.
+function normalizeIds(value: unknown, preferCode: boolean): unknown {
+  if (Array.isArray(value)) return value.map((item) => normalizeIds(item, preferCode));
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(record)) result[key] = normalizeIds(val, preferCode);
+    if (result.id === undefined) {
+      const fallback = preferCode && typeof record.code === "string" ? record.code : record._id;
+      if (fallback !== undefined) result.id = fallback;
+    }
+    return result;
+  }
+  return value;
+}
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const url = String(response.config.url ?? "");
+    if (response.data && typeof response.data === "object" && !url.startsWith("/auth/")) {
+      response.data = normalizeIds(response.data, url.startsWith("/donations"));
+    }
+    return response;
+  },
   (error) => {
     // An expired or revoked token on a protected call: clear it and tell the auth context
     const isAuthCall = String(error.config?.url ?? "").startsWith("/auth/");

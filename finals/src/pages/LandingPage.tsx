@@ -382,14 +382,13 @@ function App() {
   }, [selectedCityCode]);
 
   function startDonation(drive?: string) {
-    // Login is required before donating
+    // Donations go through the real form (/donations/new), which submits to the API.
+    const target = drive ? `/donations/new?drive=${encodeURIComponent(drive)}` : "/donations/new";
     if (!user) {
-      navigate("/signin", { state: { from: "/donations/new" } });
+      navigate("/signin", { state: { from: target } });
       return;
     }
-    setSelectedDrive(drive ?? "Philippines Priority Needs Fund");
-    setSubmitted(false);
-    setDonationOpen(true);
+    navigate(target);
   }
 
   function openAuth(mode: "signin" | "signup") {

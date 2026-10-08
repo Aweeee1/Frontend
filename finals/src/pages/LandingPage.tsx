@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "@/auth/AuthContext";
 import heroImage from "../imports/home.png";
 import localImageA from "../imports/food.png";
 import localImageB from "../imports/mountains.png";
@@ -262,13 +263,14 @@ const fallbackProvinces: PsgcLocation[] = [
 
 function App() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const signedIn = Boolean(user);
   const [filter, setFilter] = useState("All drives");
   const [donationOpen, setDonationOpen] = useState(false);
   const [selectedDrive, setSelectedDrive] = useState("Philippines Priority Needs Fund");
   const [submitted, setSubmitted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup" | null>(null);
-  const [signedIn, setSignedIn] = useState(false);
   const [signupRole, setSignupRole] = useState<"donor" | "collector">("donor");
   const [matchType, setMatchType] = useState("School supplies");
   const [donationMethod, setDonationMethod] = useState<"pickup" | "dropoff" | "center">("pickup");
@@ -380,6 +382,11 @@ function App() {
   }, [selectedCityCode]);
 
   function startDonation(drive?: string) {
+    // Login is required before donating
+    if (!user) {
+      navigate("/signin", { state: { from: "/donations/new" } });
+      return;
+    }
     setSelectedDrive(drive ?? "Philippines Priority Needs Fund");
     setSubmitted(false);
     setDonationOpen(true);
@@ -402,7 +409,7 @@ function App() {
             <a href="#organizations" className="group flex items-center gap-2 text-[#26336F] transition hover:text-[#34418E]"><span className="text-[#34418E]/60">03</span> For organizations</a>
           </nav>
           <div className="hidden items-center justify-end gap-2 md:flex">
-            <button onClick={() => signedIn ? setSignedIn(false) : navigate("/signin")} className="px-3 py-3 text-sm font-semibold text-[#26336F] transition hover:text-[#34418E]">{signedIn ? "Sign out" : "Sign in"}</button>
+            <button onClick={() => signedIn ? logout() : navigate("/signin")} className="px-3 py-3 text-sm font-semibold text-[#26336F] transition hover:text-[#34418E]">{signedIn ? "Sign out" : "Sign in"}</button>
             <button onClick={() => startDonation()} className="rounded-full bg-[#34418E] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#293675]">Make a donation</button>
           </div>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="grid size-11 place-items-center rounded-full border border-[#34418E]/25 md:hidden" aria-label="Toggle menu">
@@ -414,7 +421,7 @@ function App() {
             <a href="#drives" className="flex items-center gap-3 border-b border-[#34418E]/15 py-4 font-medium"><span className="text-[#34418E]/60">01</span> Explore drives</a>
             <a href="#how" className="flex items-center gap-3 border-b border-[#34418E]/15 py-4 font-medium"><span className="text-[#34418E]/60">02</span> How it works</a>
             <a href="#organizations" className="flex items-center gap-3 py-4 font-medium"><span className="text-[#34418E]/60">03</span> For collectors</a>
-            <button onClick={() => { if (signedIn) setSignedIn(false); else { navigate("/signin"); setMobileOpen(false); } }} className="mt-4 w-full rounded-full border border-[#34418E]/25 px-5 py-3.5 font-semibold">{signedIn ? "Sign out" : "Sign in"}</button>
+            <button onClick={() => { if (signedIn) logout(); else { navigate("/signin"); setMobileOpen(false); } }} className="mt-4 w-full rounded-full border border-[#34418E]/25 px-5 py-3.5 font-semibold">{signedIn ? "Sign out" : "Sign in"}</button>
             <button onClick={() => startDonation()} className="mt-3 w-full rounded-full bg-[#34418E] px-5 py-3.5 font-bold text-white">Make a donation</button>
           </nav>
         )}
@@ -765,7 +772,7 @@ function App() {
         </div>
       </footer>
 
-      {donationOpen && (
+      {donationOpen && user && (
         <div className="fixed inset-0 z-50 grid place-items-end bg-[#1D2758]/55 p-0 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setDonationOpen(false)}>
           <div className="max-h-[94vh] w-full overflow-y-auto rounded-t-[2rem] bg-[#F5F4EF] p-6 shadow-2xl sm:h-full sm:max-h-none sm:max-w-xl sm:rounded-none sm:border-l-[10px] sm:border-[#F2C94C] sm:p-10">
             <div className="flex items-start justify-between">
@@ -942,7 +949,6 @@ function App() {
 
             <form className="mt-7 space-y-4" onSubmit={(event) => {
               event.preventDefault();
-              setSignedIn(true);
               setAuthMode(null);
             }}>
               {authMode === "signup" && (

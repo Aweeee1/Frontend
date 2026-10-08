@@ -48,6 +48,24 @@ export function AdminDonationsPage() {
   const [items,setItems]=useState<Donation[]>([]),[error,setError]=useState(""),[message,setMessage]=useState(""),[status,setStatus]=useState("Pending");
   const load=()=>api.get<Donation[]>("/donations/admin/all",{params:status?{status}:undefined}).then(r=>setItems(r.data)).catch(e=>setError(e.message));
   useEffect(()=>{load()},[status]);
-  async function change(code:string,next:string){try{await api.patch(`/donations/${code}/status`,{status:next});setMessage(`${code} updated to ${next}.`);load()}catch(e){setError(e instanceof Error?e.message:"Unable to update donation")}}
+  // When a donation is approved, count its quantity toward the drive so "still needed" goes down.
+  async function applyToDrive(d:Donation){
+    const {data:drives}=await api.get<{id:string;title:string;raised:number}[]>("/drives");
+    const drive=drives.find(x=>x.title===d.drive);
+    if(!drive) throw new Error(`Couldn't find the drive "${d.drive}" to update its progress`);
+    await api.patch(`/drives/${drive.id}`,{raised:(drive.raised??0)+d.quantity});
+  }
+  async function change(code:string,next:string){
+    const donation=items.find(i=>i.code===code);
+    try{
+      await api.patch(`/donations/${code}/status`,{status:next});
+      setMessage(`${code} updated to ${next}.`);
+      if(next==="Approved"&&donation){
+        try{await applyToDrive(donation);setMessage(`${code} approved. ${donation.quantity} added to "${donation.drive}" progress.`)}
+        catch(e){setError(`${code} was approved, but the drive total wasn't updated: ${e instanceof Error?e.message:"unknown error"}`)}
+      }
+      load()
+    }catch(e){setError(e instanceof Error?e.message:"Unable to update donation")}
+  }
   return <><PageHeader eyebrow="Administration" title="Donation operations" description="Review real donation records and enforce valid status transitions."/><main className="mx-auto max-w-7xl px-5 py-10 lg:px-8">{message&&<Notice tone="success">{message}</Notice>}{error&&<Notice tone="error">{error}</Notice>}<div className="mb-5 flex flex-wrap gap-2">{["Pending","Approved","Received","Rejected",""].map(s=><button key={s||"all"} onClick={()=>setStatus(s)} className={`rounded-full px-4 py-2 text-sm font-bold ${status===s?"bg-[#34418E] text-white":"bg-white"}`}>{s||"All"}</button>)}</div><div className="overflow-x-auto rounded-2xl bg-white shadow-sm"><table className="w-full min-w-[900px] text-left text-sm"><thead className="bg-[#ECEEF7] text-xs uppercase"><tr>{["Reference","Donor","Drive","Type","Qty","Method","Status","Action"].map(h=><th key={h} className="px-5 py-4">{h}</th>)}</tr></thead><tbody>{items.map(d=><tr key={d.code} className="border-t border-[#34418E]/10"><td className="px-5 py-4 font-mono font-bold">{d.code}</td><td className="px-5 py-4">{d.donorName||"—"}</td><td className="px-5 py-4">{d.drive}</td><td className="px-5 py-4">{d.type}</td><td className="px-5 py-4">{d.quantity}</td><td className="px-5 py-4 capitalize">{d.method}</td><td className="px-5 py-4">{d.status}</td><td className="px-5 py-4">{d.status==="Pending"&&<button onClick={()=>change(d.code,"Approved")} className="font-bold">Approve</button>}{d.status==="Approved"&&<button onClick={()=>change(d.code,"Received")} className="font-bold">Receive</button>}</td></tr>)}</tbody></table></div></main></>;
 }

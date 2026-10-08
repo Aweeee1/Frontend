@@ -4,6 +4,17 @@ import { driveData, type Drive } from "@/data/mockData";
 import { useApiResource } from "@/hooks/useApiResource";
 import { LoadingState, Notice, PageHeader } from "@/components/PagePrimitives";
 
+// "Still needed" is free text like "56 home kits" or "₱65,800". When it starts with a number,
+// recompute that number from goal − raised so it drops as donations are approved.
+function stillNeeded(drive: Drive): string {
+  const text = drive.remaining ?? "";
+  const match = text.match(/^(\D*?)(\d[\d,]*)(.*)$/);
+  if (!match || !(drive.goal > 0)) return text;
+  const left = Math.max(drive.goal - drive.raised, 0);
+  if (left === 0) return "Goal reached";
+  return `${match[1]}${left.toLocaleString("en-PH")}${match[3]}`;
+}
+
 function Progress({ drive }: { drive: Drive }) {
   const percent = Math.min(100, Math.round((drive.raised / drive.goal) * 100));
   return (
@@ -45,7 +56,7 @@ export function BrowseDrivesPage() {
                   </div>
                   <h2 className="mt-5 text-2xl font-bold tracking-tight">{drive.title}</h2>
                   <p className="mt-2 text-sm text-[#6B7C8F]">{drive.organization} · {drive.location}</p>
-                  <p className="mt-5 text-sm"><strong>Still needed:</strong> {drive.remaining}</p>
+                  <p className="mt-5 text-sm"><strong>Still needed:</strong> {stillNeeded(drive)}</p>
                 </div>
                 <div className="mt-8">
                   <Progress drive={drive} />
@@ -73,7 +84,7 @@ export function DriveDetailPage() {
           <h2 className="text-2xl font-bold">About this drive</h2>
           {drive.description && <p className="mt-4 leading-7 text-[#34418E]/80">{drive.description}</p>}
           <h3 className="mt-8 text-lg font-bold">Still needed</h3>
-          <p className="mt-2">{drive.remaining || "Contact the organization for the current list of needs."}</p>
+          <p className="mt-2">{stillNeeded(drive) || "Contact the organization for the current list of needs."}</p>
         </section>
         <aside className="border border-[#34418E] bg-[#34418E] p-7 text-white sm:p-10">
           <p className="text-xs font-bold uppercase tracking-wider text-[#F2C94C]">Campaign progress</p>

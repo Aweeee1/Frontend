@@ -114,7 +114,7 @@ function useAfterAuth() {
   const navigate = useNavigate();
   const location = useLocation();
   return (user: User) =>
-    navigate(location.state?.from ?? (user.role === "collector" ? "/collector" : "/drives"), { replace: true });
+    navigate(location.state?.from ?? (user.role === "admin" ? "/admin" : user.role === "collector" ? "/collector" : "/drives"), { replace: true });
 }
 
 export function SignInPage() {

@@ -8,6 +8,12 @@ export type Drive = {
   goal: number;
   urgent?: boolean;
   remaining: string;
+  // Present on API responses only
+  description?: string;
+  status?: string;
+  deadline?: string;
+  daysRemaining?: number | null;
+  progressPercent?: number;
 };
 
 export const driveData: Drive[] = [

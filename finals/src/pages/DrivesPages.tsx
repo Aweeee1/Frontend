@@ -70,20 +70,20 @@ export function DriveDetailPage() {
       <PageHeader eyebrow={drive.urgent ? "Urgent verified drive" : drive.category} title={drive.title} description={`${drive.organization} · ${drive.location}`} action={<Link to="/donations/new" className="rounded-full bg-[#F2C94C] px-5 py-3 font-bold">Donate to this drive</Link>} />
       <main className="mx-auto grid max-w-6xl gap-8 px-5 py-12 lg:grid-cols-[1fr_.7fr] lg:px-8">
         <section className="bg-white p-7 sm:p-10">
-          <h2 className="text-2xl font-bold">Current needs</h2>
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-lg text-left text-sm">
-              <thead className="border-b border-[#34418E]/15 text-xs uppercase text-[#6B7C8F]"><tr><th className="py-3">Item</th><th>Needed</th><th>Received</th><th>Remaining</th></tr></thead>
-              <tbody>{[["Rice", "500 kg", "320 kg", "180 kg"], ["Water", "300 cases", "185", "115"], ["Blankets", "100", "70", "30"]].map((row) => <tr key={row[0]} className="border-b border-[#34418E]/10">{row.map((cell, index) => <td key={cell} className={`py-4 ${index === 0 ? "font-bold" : ""}`}>{cell}</td>)}</tr>)}</tbody>
-            </table>
-          </div>
+          <h2 className="text-2xl font-bold">About this drive</h2>
+          {drive.description && <p className="mt-4 leading-7 text-[#34418E]/80">{drive.description}</p>}
+          <h3 className="mt-8 text-lg font-bold">Still needed</h3>
+          <p className="mt-2">{drive.remaining || "Contact the organization for the current list of needs."}</p>
         </section>
         <aside className="border border-[#34418E] bg-[#34418E] p-7 text-white sm:p-10">
           <p className="text-xs font-bold uppercase tracking-wider text-[#F2C94C]">Campaign progress</p>
           <p className="mt-4 text-4xl font-bold">{drive.raised.toLocaleString("en-PH")}</p>
           <p className="mt-1 text-white/55">of {drive.goal.toLocaleString("en-PH")} goal</p>
           <div className="mt-8"><Progress drive={drive} /></div>
-          <div className="mt-8 border-t border-white/15 pt-6"><strong>Milestone reached</strong><p className="mt-2 text-sm text-white/65">100 donors have supported this campaign.</p></div>
+          <div className="mt-8 border-t border-white/15 pt-6">
+            <strong>{typeof drive.daysRemaining === "number" ? (drive.daysRemaining === 0 ? "Deadline reached" : `${drive.daysRemaining} ${drive.daysRemaining === 1 ? "day" : "days"} left`) : "No deadline set"}</strong>
+            <p className="mt-2 text-sm text-white/65">{drive.status && drive.status !== "Active" ? `Status: ${drive.status}` : "This drive is accepting donations."}</p>
+          </div>
         </aside>
       </main>
     </>

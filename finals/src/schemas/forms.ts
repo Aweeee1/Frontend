@@ -14,6 +14,8 @@ export type DonationFormValues = z.infer<typeof donationSchema>;
 export const driveSchema = z.object({
   title: z.string().min(8, "Title must have at least 8 characters"),
   category: z.string().min(1, "Select a category"),
+  location: z.string().min(2, "Enter where this drive is based"),
+  remaining: z.string().min(3, "Describe what is still needed"),
   goal: z.number({ error: "Enter a goal amount" }).positive("Goal must be greater than zero"),
   deadline: z.string().min(1, "Select a deadline"),
   description: z.string().min(30, "Description must have at least 30 characters"),

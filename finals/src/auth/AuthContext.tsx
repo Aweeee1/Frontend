@@ -6,7 +6,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  role: "donor" | "collector";
+  role: "donor" | "collector" | "admin";
   organization: string;
 };
 

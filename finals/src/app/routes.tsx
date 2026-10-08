@@ -6,6 +6,7 @@ import { BrowseDrivesPage, DriveDetailPage, MatchingPage } from "@/pages/DrivesP
 import { DonationTrackingPage, MyDonationsPage, NewDonationPage, PickupRequestsPage } from "@/pages/DonorPages";
 import { CollectionCentersPage, CollectorDashboardPage, DriveFormPage, ManageDrivesPage } from "@/pages/CollectorPages";
 import { NotFoundPage, SignInPage, SignUpPage } from "@/pages/AuthPages";
+import { AdminDashboardPage, AdminUsersPage, AdminDrivesPage, AdminDonationsPage } from "@/pages/AdminPages";
 
 function RouteError() {
   const error = useRouteError();
@@ -42,6 +43,17 @@ export const router = createBrowserRouter([
           { path: "donations", Component: MyDonationsPage },
           { path: "donations/:donationId", Component: DonationTrackingPage },
           { path: "pickups", Component: PickupRequestsPage },
+        ],
+      },
+
+      // Admin only
+      {
+        element: <ProtectedRoute role="admin" />,
+        children: [
+          { path: "admin", Component: AdminDashboardPage },
+          { path: "admin/users", Component: AdminUsersPage },
+          { path: "admin/drives", Component: AdminDrivesPage },
+          { path: "admin/donations", Component: AdminDonationsPage },
         ],
       },
 

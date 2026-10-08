@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "@/auth/AuthContext";
 import { LoadingState } from "@/components/PagePrimitives";
 
-export default function ProtectedRoute({ role }: { role?: "donor" | "collector" }) {
+export default function ProtectedRoute({ role }: { role?: "donor" | "collector" | "admin" }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 

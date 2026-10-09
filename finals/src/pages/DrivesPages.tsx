@@ -43,6 +43,7 @@ export function BrowseDrivesPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const filtered = useMemo(() => data.filter((drive) =>
+    drive.status !== "Archived" &&
     (category === "All" || drive.category === category) &&
     `${drive.title} ${drive.organization} ${drive.location}`.toLowerCase().includes(query.toLowerCase()),
   ), [category, data, query]);

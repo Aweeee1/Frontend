@@ -28,6 +28,26 @@ export const driveSchema = z.object({
 
 export type DriveFormValues = z.infer<typeof driveSchema>;
 
+export const driveCategories = ["Emergency", "Food", "Education", "Medical", "Household", "Hygiene", "Essentials"];
+export const driveStatuses = ["Pending", "Active", "Completed", "Archived", "Rejected"];
+
+// Admins can also set the host organization, current progress, and status; the deadline is optional
+export const adminDriveSchema = z.object({
+  title: z.string().min(8, "Title must have at least 8 characters"),
+  organization: z.string().min(2, "Enter the organization running this drive"),
+  category: z.string().min(1, "Select a category"),
+  location: z.string().min(2, "Enter where this drive is based"),
+  remaining: z.string().min(3, "Describe what is still needed"),
+  goal: z.number({ error: "Enter a goal amount" }).positive("Goal must be greater than zero"),
+  raised: z.number({ error: "Enter the amount raised so far" }).min(0, "Raised can't be negative"),
+  deadline: z.string(),
+  description: z.string().min(30, "Description must have at least 30 characters"),
+  status: z.string().min(1, "Select a status"),
+  urgent: z.boolean(),
+});
+
+export type AdminDriveFormValues = z.infer<typeof adminDriveSchema>;
+
 export const loginSchema = z.object({
   email: z.email("Enter a valid email address"),
   password: z.string().min(8, "Password must have at least 8 characters"),

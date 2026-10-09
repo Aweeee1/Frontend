@@ -6,7 +6,7 @@ import { BrowseDrivesPage, DriveDetailPage, MatchingPage } from "@/pages/DrivesP
 import { DonationTrackingPage, MyDonationsPage, NewDonationPage } from "@/pages/DonorPages";
 import { CollectionCentersPage, CollectorDashboardPage, DriveFormPage, ManageDrivesPage } from "@/pages/CollectorPages";
 import { NotFoundPage, SignInPage, SignUpPage } from "@/pages/AuthPages";
-import { AdminDashboardPage, AdminUsersPage, AdminDrivesPage, AdminDonationsPage } from "@/pages/AdminPages";
+import { AdminDashboardPage, AdminUsersPage, AdminDrivesPage, AdminDriveFormPage, AdminDonationsPage } from "@/pages/AdminPages";
 
 function RouteError() {
   const error = useRouteError();
@@ -52,6 +52,8 @@ export const router = createBrowserRouter([
           { path: "admin", Component: AdminDashboardPage },
           { path: "admin/users", Component: AdminUsersPage },
           { path: "admin/drives", Component: AdminDrivesPage },
+          { path: "admin/drives/new", Component: AdminDriveFormPage },
+          { path: "admin/drives/:driveId/edit", Component: AdminDriveFormPage },
           { path: "admin/donations", Component: AdminDonationsPage },
         ],
       },

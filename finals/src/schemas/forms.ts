@@ -4,9 +4,13 @@ export const donationSchema = z.object({
   driveId: z.string().min(1, "Select a donation drive"),
   type: z.string().min(1, "Select a donation type"),
   quantity: z.number({ error: "Enter a quantity" }).positive("Quantity must be greater than zero"),
-  method: z.enum(["pickup", "dropoff", "center"]),
-  details: z.string().min(10, "Provide at least 10 characters"),
+  details: z.string(),
   contactNumber: z.string().regex(/^(\+63|0)9\d{9}$/, "Enter a valid Philippine mobile number"),
+}).superRefine((values, ctx) => {
+  // Money donations only need an optional reference note; item donations must describe what is given
+  if (values.type !== "Money" && values.details.trim().length < 10) {
+    ctx.addIssue({ code: "custom", path: ["details"], message: "Provide at least 10 characters" });
+  }
 });
 
 export type DonationFormValues = z.infer<typeof donationSchema>;
@@ -23,6 +27,26 @@ export const driveSchema = z.object({
 });
 
 export type DriveFormValues = z.infer<typeof driveSchema>;
+
+export const driveCategories = ["Emergency", "Food", "Education", "Medical", "Household", "Hygiene", "Essentials"];
+export const driveStatuses = ["Pending", "Active", "Completed", "Archived", "Rejected"];
+
+// Admins can also set the host organization, current progress, and status; the deadline is optional
+export const adminDriveSchema = z.object({
+  title: z.string().min(8, "Title must have at least 8 characters"),
+  organization: z.string().min(2, "Enter the organization running this drive"),
+  category: z.string().min(1, "Select a category"),
+  location: z.string().min(2, "Enter where this drive is based"),
+  remaining: z.string().min(3, "Describe what is still needed"),
+  goal: z.number({ error: "Enter a goal amount" }).positive("Goal must be greater than zero"),
+  raised: z.number({ error: "Enter the amount raised so far" }).min(0, "Raised can't be negative"),
+  deadline: z.string(),
+  description: z.string().min(30, "Description must have at least 30 characters"),
+  status: z.string().min(1, "Select a status"),
+  urgent: z.boolean(),
+});
+
+export type AdminDriveFormValues = z.infer<typeof adminDriveSchema>;
 
 export const loginSchema = z.object({
   email: z.email("Enter a valid email address"),

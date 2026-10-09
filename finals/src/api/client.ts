@@ -38,7 +38,7 @@ function normalizeIds(value: unknown, preferCode: boolean): unknown {
 api.interceptors.response.use(
   (response) => {
     const url = String(response.config.url ?? "");
-    if (response.data && typeof response.data === "object" && !url.startsWith("/auth/")) {
+    if (response.data && typeof response.data === "object" && !(response.data instanceof Blob) && !url.startsWith("/auth/")) {
       response.data = normalizeIds(response.data, url.startsWith("/donations"));
     }
     return response;

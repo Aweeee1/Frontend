@@ -15,6 +15,19 @@ function stillNeeded(drive: Drive): string {
   return `${match[1]}${left.toLocaleString("en-PH")}${match[3]}`;
 }
 
+// A drive stops accepting donations once its goal is met or it has been finished/archived.
+const CLOSED_STATUSES = ["completed", "archived"];
+export function goalReached(drive: Drive): boolean {
+  return Number(drive.goal) > 0 && Number(drive.raised) >= Number(drive.goal);
+}
+export function isFull(drive: Drive): boolean {
+  return goalReached(drive) || CLOSED_STATUSES.includes(String(drive.status ?? "").trim().toLowerCase());
+}
+// Says why a drive is closed, e.g. "goal reached", "completed", "archived"
+export function closedLabel(drive: Drive): string {
+  return goalReached(drive) ? "goal reached" : String(drive.status ?? "closed").toLowerCase();
+}
+
 function Progress({ drive }: { drive: Drive }) {
   const percent = Math.min(100, Math.round((drive.raised / drive.goal) * 100));
   return (
@@ -78,7 +91,7 @@ export function DriveDetailPage() {
   if (!drive) return <main className="mx-auto max-w-3xl px-5 py-24 text-center"><p className="text-sm font-bold uppercase text-[#B88910]">404</p><h1 className="mt-3 text-4xl font-bold">Drive not found</h1><Link to="/drives" className="mt-6 inline-block rounded-full bg-[#34418E] px-5 py-3 text-white">Return to drives</Link></main>;
   return (
     <>
-      <PageHeader eyebrow={drive.urgent ? "Urgent verified drive" : drive.category} title={drive.title} description={`${drive.organization} · ${drive.location}`} action={<Link to="/donations/new" className="rounded-full bg-[#F2C94C] px-5 py-3 font-bold">Donate to this drive</Link>} />
+      <PageHeader eyebrow={drive.urgent ? "Urgent verified drive" : drive.category} title={drive.title} description={`${drive.organization} · ${drive.location}`} action={isFull(drive) ? <span className="cursor-not-allowed rounded-full bg-white/30 px-5 py-3 font-bold text-white/70">{goalReached(drive) ? "Goal reached" : `Drive ${closedLabel(drive)}`}</span> : <Link to={`/donations/new?drive=${encodeURIComponent(drive.id)}`} className="rounded-full bg-[#F2C94C] px-5 py-3 font-bold">Donate to this drive</Link>} />
       <main className="mx-auto grid max-w-6xl gap-8 px-5 py-12 lg:grid-cols-[1fr_.7fr] lg:px-8">
         <section className="bg-white p-7 sm:p-10">
           <h2 className="text-2xl font-bold">About this drive</h2>

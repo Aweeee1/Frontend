@@ -6,7 +6,6 @@ const links = [
   ["/match", "Match"],
   ["/centers", "Centers"],
   ["/donations", "My donations"],
-  ["/pickups", "Pickups"],
   ["/collector", "Collector"],
   ["/admin", "Admin"],
 ] as const;
@@ -17,7 +16,7 @@ export default function AppShell() {
   const visibleLinks = links.filter(([to]) =>
     (to !== "/collector" || user?.role === "collector") &&
     (to !== "/admin" || user?.role === "admin") &&
-    (to !== "/donations" && to !== "/pickups" || Boolean(user))
+    (to !== "/donations" || Boolean(user))
   );
 
   return (

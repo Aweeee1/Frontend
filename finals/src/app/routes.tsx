@@ -3,7 +3,7 @@ import AppShell from "@/components/AppShell";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import LandingPage from "@/pages/LandingPage";
 import { BrowseDrivesPage, DriveDetailPage, MatchingPage } from "@/pages/DrivesPages";
-import { DonationTrackingPage, MyDonationsPage, NewDonationPage, PickupRequestsPage } from "@/pages/DonorPages";
+import { DonationTrackingPage, MyDonationsPage, NewDonationPage } from "@/pages/DonorPages";
 import { CollectionCentersPage, CollectorDashboardPage, DriveFormPage, ManageDrivesPage } from "@/pages/CollectorPages";
 import { NotFoundPage, SignInPage, SignUpPage } from "@/pages/AuthPages";
 import { AdminDashboardPage, AdminUsersPage, AdminDrivesPage, AdminDonationsPage } from "@/pages/AdminPages";
@@ -42,7 +42,6 @@ export const router = createBrowserRouter([
           { path: "donations/new", Component: NewDonationPage },
           { path: "donations", Component: MyDonationsPage },
           { path: "donations/:donationId", Component: DonationTrackingPage },
-          { path: "pickups", Component: PickupRequestsPage },
         ],
       },
 

@@ -26,7 +26,14 @@ export const driveData: Drive[] = [
 ];
 
 export const donationData = [
-  { id: "DON-2026-00125", drive: "Flood Relief for 200 Families", type: "Food", method: "Pickup", status: "Approved", date: "Sep 18, 2026" },
+  { id: "DON-2026-00125", drive: "Flood Relief for 200 Families", type: "Food", method: "Drop-off", status: "Approved", date: "Sep 18, 2026" },
   { id: "DON-2026-00108", drive: "Back-to-School Kits for Public Students", type: "Education", method: "Drop-off", status: "Received", date: "Sep 12, 2026" },
   { id: "DON-2026-00091", drive: "Barangay First Aid Stations", type: "Medical", method: "Collection center", status: "Pending", date: "Sep 8, 2026" },
+];
+
+// NOTE: street addresses below are placeholders — replace with each center's real address.
+export const collectionCenters = [
+  { id: "ctr-01", name: "DAMAYAN Hub", location: "Marikina City", address: "123 Shoe Avenue, Sto. Niño, Marikina City", hours: "8:00 AM–5:00 PM", accepts: "Clothes, food, hygiene, school supplies" },
+  { id: "ctr-02", name: "Bayanihan Center", location: "Pasig City", address: "45 Caruncho Avenue, Brgy. Maybunga, Pasig City", hours: "9:00 AM–6:00 PM", accepts: "Food, blankets, household, medical" },
+  { id: "ctr-03", name: "DAMAYAN Relief Point", location: "Quezon City", address: "88 Commonwealth Avenue, Brgy. Holy Spirit, Quezon City", hours: "8:00 AM–4:00 PM", accepts: "Food, water, clothing, emergency supplies" },
 ];

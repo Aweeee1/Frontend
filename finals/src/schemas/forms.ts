@@ -4,9 +4,13 @@ export const donationSchema = z.object({
   driveId: z.string().min(1, "Select a donation drive"),
   type: z.string().min(1, "Select a donation type"),
   quantity: z.number({ error: "Enter a quantity" }).positive("Quantity must be greater than zero"),
-  method: z.enum(["pickup", "dropoff", "center"]),
-  details: z.string().min(10, "Provide at least 10 characters"),
+  details: z.string(),
   contactNumber: z.string().regex(/^(\+63|0)9\d{9}$/, "Enter a valid Philippine mobile number"),
+}).superRefine((values, ctx) => {
+  // Money donations only need an optional reference note; item donations must describe what is given
+  if (values.type !== "Money" && values.details.trim().length < 10) {
+    ctx.addIssue({ code: "custom", path: ["details"], message: "Provide at least 10 characters" });
+  }
 });
 
 export type DonationFormValues = z.infer<typeof donationSchema>;

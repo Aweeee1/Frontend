@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/auth/AuthContext";
 import heroImage from "../imports/home.png";
@@ -37,11 +37,6 @@ type IconName =
   | "phone"
   | "qr"
   | "truck";
-
-type PsgcLocation = {
-  code: string;
-  name: string;
-};
 
 function Icon({ name, className = "size-5" }: { name: IconName; className?: string }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -212,174 +207,20 @@ const matchRecommendations: Record<string, string[]> = {
   "Household goods": ["Home Kits for Fire-Affected Families", "Rebuild Homes After Typhoons"],
 };
 
-const collectionCenters = [
-  {
-    name: "DAMAYAN Hub — Marikina City",
-    address: "42 Bayanihan Street, Marikina City",
-    hours: "8:00 AM–5:00 PM, Monday–Saturday",
-    phone: "+63 917 555 0142",
-    accepts: "Clothes, food, hygiene kits, and school supplies",
-  },
-  {
-    name: "Bayanihan Center — Pasig City",
-    address: "18 Kapitbahay Road, Pasig City",
-    hours: "9:00 AM–6:00 PM, Monday–Friday",
-    phone: "+63 918 555 0188",
-    accepts: "Food, blankets, household goods, and medical supplies",
-  },
-  {
-    name: "DAMAYAN Relief Point — Quezon City",
-    address: "75 Malasakit Avenue, Quezon City",
-    hours: "8:00 AM–4:00 PM, Daily",
-    phone: "+63 919 555 0126",
-    accepts: "Food, water, clothing, and emergency supplies",
-  },
-];
-
-const fallbackNcrCities: PsgcLocation[] = [
-  { code: "137404000", name: "City of Makati" },
-  { code: "137402000", name: "City of Manila" },
-  { code: "137401000", name: "City of Mandaluyong" },
-  { code: "137403000", name: "City of Marikina" },
-  { code: "137405000", name: "City of Muntinlupa" },
-  { code: "137406000", name: "City of Navotas" },
-  { code: "137407000", name: "City of Parañaque" },
-  { code: "137408000", name: "Pasay City" },
-  { code: "137409000", name: "City of Pasig" },
-  { code: "137410000", name: "Quezon City" },
-  { code: "137411000", name: "City of San Juan" },
-  { code: "137412000", name: "City of Taguig" },
-];
-
-const fallbackProvinces: PsgcLocation[] = [
-  { code: "130000000", name: "National Capital Region (NCR)" },
-  { code: "041000000", name: "Batangas" },
-  { code: "012800000", name: "Ilocos Norte" },
-  { code: "043400000", name: "Laguna" },
-  { code: "045600000", name: "Quezon" },
-  { code: "072200000", name: "Cebu" },
-  { code: "112400000", name: "Davao del Sur" },
-];
-
 function App() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const signedIn = Boolean(user);
   const [filter, setFilter] = useState("All drives");
-  const [donationOpen, setDonationOpen] = useState(false);
-  const [selectedDrive, setSelectedDrive] = useState("Philippines Priority Needs Fund");
-  const [submitted, setSubmitted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup" | null>(null);
   const [signupRole, setSignupRole] = useState<"donor" | "collector">("donor");
   const [matchType, setMatchType] = useState("School supplies");
-  const [donationMethod, setDonationMethod] = useState<"pickup" | "dropoff" | "center">("pickup");
-  const [selectedCenter, setSelectedCenter] = useState(collectionCenters[0].name);
-  const [provinces, setProvinces] = useState<PsgcLocation[]>([]);
-  const [cities, setCities] = useState<PsgcLocation[]>([]);
-  const [barangays, setBarangays] = useState<PsgcLocation[]>([]);
-  const [selectedProvinceCode, setSelectedProvinceCode] = useState("");
-  const [selectedCityCode, setSelectedCityCode] = useState("");
-  const [selectedBarangayCode, setSelectedBarangayCode] = useState("");
-  const [provincesLoading, setProvincesLoading] = useState(true);
-  const [citiesLoading, setCitiesLoading] = useState(false);
-  const [barangaysLoading, setBarangaysLoading] = useState(false);
 
   const visibleDrives = useMemo(
     () => filter === "All drives" ? drives : drives.filter((drive) => drive.category === filter),
     [filter],
   );
-  const activeCenter = collectionCenters.find((center) => center.name === selectedCenter) ?? collectionCenters[0];
-
-  useEffect(() => {
-    let active = true;
-    fetch("https://psgc.gitlab.io/api/provinces/")
-      .then((response) => {
-        if (!response.ok) throw new Error("Unable to load locations");
-        return response.json() as Promise<PsgcLocation[]>;
-      })
-      .then((data) => {
-        if (active) {
-          setProvinces([
-            { code: "130000000", name: "National Capital Region (NCR)" },
-            ...data,
-          ].sort((a, b) => a.name.localeCompare(b.name)));
-        }
-      })
-      .catch(() => {
-        if (active) setProvinces(fallbackProvinces);
-      })
-      .finally(() => {
-        if (active) setProvincesLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedProvinceCode) {
-      setCities([]);
-      setSelectedCityCode("");
-      setBarangays([]);
-      setSelectedBarangayCode("");
-      return;
-    }
-    let active = true;
-    setCitiesLoading(true);
-    setSelectedCityCode("");
-    setCities([]);
-    setBarangays([]);
-    setSelectedBarangayCode("");
-    const endpoint = selectedProvinceCode === "130000000"
-      ? "https://psgc.gitlab.io/api/regions/130000000/cities-municipalities/"
-      : `https://psgc.gitlab.io/api/provinces/${selectedProvinceCode}/cities-municipalities/`;
-    fetch(endpoint)
-      .then((response) => {
-        if (!response.ok) throw new Error("Unable to load cities");
-        return response.json() as Promise<PsgcLocation[]>;
-      })
-      .then((data) => {
-        if (active) setCities(data.sort((a, b) => a.name.localeCompare(b.name)));
-      })
-      .catch(() => {
-        if (active) setCities(selectedProvinceCode === "130000000" ? fallbackNcrCities : []);
-      })
-      .finally(() => {
-        if (active) setCitiesLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selectedProvinceCode]);
-
-  useEffect(() => {
-    if (!selectedCityCode) {
-      setBarangays([]);
-      setSelectedBarangayCode("");
-      return;
-    }
-    let active = true;
-    setBarangaysLoading(true);
-    setSelectedBarangayCode("");
-    fetch(`https://psgc.gitlab.io/api/cities-municipalities/${selectedCityCode}/barangays/`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Unable to load barangays");
-        return response.json() as Promise<PsgcLocation[]>;
-      })
-      .then((data) => {
-        if (active) setBarangays(data.sort((a, b) => a.name.localeCompare(b.name)));
-      })
-      .catch(() => {
-        if (active) setBarangays([]);
-      })
-      .finally(() => {
-        if (active) setBarangaysLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selectedCityCode]);
 
   function startDonation(drive?: string) {
     // Donations go through the real form (/donations/new), which submits to the API.
@@ -653,7 +494,7 @@ function App() {
                     </div>
                     <div className="mt-6 flex items-center justify-between border-t border-[#34418E]/8 pt-5">
                       <span className="text-sm text-[#6B7C8F]">{drive.supporters} supporters</span>
-                      <button onClick={() => startDonation(drive.title)} className="flex items-center gap-2 text-sm font-bold text-[#B88910]">Donate <Icon name="arrow" className="size-4" /></button>
+                      {drive.raised >= drive.goal ? <span className="text-sm font-bold text-[#6B7C8F]">Goal reached</span> : <button onClick={() => startDonation(drive.title)} className="flex items-center gap-2 text-sm font-bold text-[#B88910]">Donate <Icon name="arrow" className="size-4" /></button>}
                     </div>
                   </div>
                 </article>
@@ -675,7 +516,7 @@ function App() {
           <div className="border-t border-[#34418E]/20">
           {[
             ["01", "Choose a need", "Explore vetted drives or select a category that matters to you."],
-            ["02", "Share the details", "Tell us what you’re giving and arrange payment, drop-off, or pickup."],
+            ["02", "Share the details", "Tell us what you’re giving and arrange payment or drop-off."],
             ["03", "We verify it", "Receipts, photos, and collector details are reviewed by our team."],
             ["04", "Follow the impact", "Receive updates and documentation when your gift is delivered."],
           ].map(([number, title, description], index) => (
@@ -702,10 +543,10 @@ function App() {
           <div className="flex flex-col justify-between bg-[#F2C94C] p-8 text-[#34418E] sm:p-12">
             <span className="self-end font-serif text-7xl italic text-[#34418E]/20">03</span>
             <div className="mt-10">
-              <p className="text-xs font-bold uppercase tracking-[0.15em]">Pickup request workflow</p>
+              <p className="text-xs font-bold uppercase tracking-[0.15em]">Drop-off workflow</p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-                {["Accept", "Assign collector", "Picked up", "Received"].map((step, index) => (
-                  <span key={step} className="flex items-center gap-2"><span className="grid size-6 place-items-center rounded-full border border-[#34418E]/30">{index + 1}</span>{step}{index < 3 && <Icon name="arrow" className="size-3 opacity-40" />}</span>
+                {["Accept", "Dropped off", "Received"].map((step, index) => (
+                  <span key={step} className="flex items-center gap-2"><span className="grid size-6 place-items-center rounded-full border border-[#34418E]/30">{index + 1}</span>{step}{index < 2 && <Icon name="arrow" className="size-3 opacity-40" />}</span>
                 ))}
               </div>
             </div>
@@ -770,163 +611,6 @@ function App() {
           </div>
         </div>
       </footer>
-
-      {donationOpen && user && (
-        <div className="fixed inset-0 z-50 grid place-items-end bg-[#1D2758]/55 p-0 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setDonationOpen(false)}>
-          <div className="max-h-[94vh] w-full overflow-y-auto rounded-t-[2rem] bg-[#F5F4EF] p-6 shadow-2xl sm:h-full sm:max-h-none sm:max-w-xl sm:rounded-none sm:border-l-[10px] sm:border-[#F2C94C] sm:p-10">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#B88910]">Secure donation</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight">{submitted ? "Thank you for showing up." : "Tell us what you’re giving"}</h2>
-              </div>
-              <button onClick={() => setDonationOpen(false)} className="grid size-10 place-items-center rounded-full bg-[#34418E]/5" aria-label="Close"><Icon name="close" /></button>
-            </div>
-            {submitted ? (
-              <div className="py-12 text-center">
-                <span className="mx-auto grid size-20 place-items-center rounded-full bg-[#E7EAF5] text-[#3C4C9D]"><Icon name="check" className="size-9" /></span>
-                <p className="mx-auto mt-6 max-w-sm leading-7 text-[#6B7C8F]">Your donation details were submitted for review. You’ll receive a confirmation after our team verifies the documentation.</p>
-                <div className="mx-auto mt-7 flex max-w-sm items-center gap-5 border border-[#34418E]/15 bg-white p-5 text-left">
-                  <div className="grid size-20 shrink-0 grid-cols-9 gap-0.5 bg-white p-1">
-                    {"111011001110101101001111000101011011101001011110101001011101110101010011101110101".slice(0, 81).split("").map((cell, index) => (
-                      <span key={index} className={cell === "1" ? "bg-[#34418E]" : "bg-white"} />
-                    ))}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#B88910]">Donation record</p>
-                    <p className="mt-1 font-mono text-lg font-bold">DON-2026-00125</p>
-                    <p className="mt-1 text-xs leading-5 text-[#6B7C8F]">The receiving QR code activates after approval.</p>
-                  </div>
-                </div>
-                <button onClick={() => setDonationOpen(false)} className="mt-8 rounded-full bg-[#34418E] px-7 py-3.5 font-bold text-white">Done</button>
-              </div>
-            ) : (
-              <form className="mt-7 space-y-5" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold">Donation drive</span>
-                  <select value={selectedDrive} onChange={(event) => setSelectedDrive(event.target.value)} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]">
-                    <option>Philippines Priority Needs Fund</option>
-                    {drives.map((drive) => <option key={drive.id}>{drive.title}</option>)}
-                  </select>
-                </label>
-                <fieldset>
-                  <legend className="mb-2 text-sm font-semibold">Donation type</legend>
-                  <div className="grid grid-cols-4 gap-2">
-                    {categories.map((category) => (
-                      <label key={category.name} className="cursor-pointer">
-                        <input type="radio" name="type" value={category.name} className="peer sr-only" defaultChecked={category.name === "Money"} />
-                        <span className="flex flex-col items-center gap-2 rounded-2xl border border-[#34418E]/10 bg-white px-2 py-3 text-xs font-semibold peer-checked:border-[#B88910] peer-checked:bg-[#FFF4D6] peer-checked:text-[#7A5A12]">
-                          <Icon name={category.icon} className="size-5" />{category.name}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-                <fieldset>
-                  <legend className="mb-2 text-sm font-semibold">Donation method</legend>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      ["pickup", "truck", "Request pickup"],
-                      ["dropoff", "map", "Drop-off"],
-                      ["center", "home", "Collection center"],
-                    ].map(([value, icon, label]) => (
-                      <button key={value} type="button" onClick={() => setDonationMethod(value as "pickup" | "dropoff" | "center")} className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border px-2 text-center text-xs font-semibold transition ${donationMethod === value ? "border-[#34418E] bg-[#ECEEF7] text-[#34418E]" : "border-[#34418E]/10 bg-white text-[#6B7C8F]"}`}>
-                        <Icon name={icon as IconName} className="size-5" />{label}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-                {donationMethod === "pickup" ? (
-                  <div className="space-y-4 border-l-4 border-[#F2C94C] pl-4">
-                    <label className="block">
-                      <span className="mb-2 block text-sm font-semibold">Province or region</span>
-                      <select required value={selectedProvinceCode} onChange={(event) => setSelectedProvinceCode(event.target.value)} disabled={provincesLoading} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none disabled:cursor-wait disabled:opacity-60 focus:border-[#4A5BB0]">
-                        <option value="" disabled>{provincesLoading ? "Loading Philippine provinces…" : "Select province or region"}</option>
-                        {provinces.map((province) => <option key={province.code} value={province.code}>{province.name}</option>)}
-                      </select>
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">City or municipality</span>
-                        <select required value={selectedCityCode} onChange={(event) => setSelectedCityCode(event.target.value)} disabled={!selectedProvinceCode || citiesLoading} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none disabled:cursor-wait disabled:opacity-60 focus:border-[#4A5BB0]">
-                          <option value="" disabled>{!selectedProvinceCode ? "Select a province first" : citiesLoading ? "Loading cities…" : cities.length ? "Select city or municipality" : "No cities available"}</option>
-                          {cities.map((city) => <option key={city.code} value={city.code}>{city.name}</option>)}
-                        </select>
-                      </label>
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">Barangay</span>
-                        <select required value={selectedBarangayCode} onChange={(event) => setSelectedBarangayCode(event.target.value)} disabled={!selectedCityCode || barangaysLoading} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none disabled:cursor-not-allowed disabled:opacity-60 focus:border-[#4A5BB0]">
-                          <option value="" disabled>
-                            {!selectedCityCode ? "Select a city first" : barangaysLoading ? "Loading barangays…" : barangays.length ? "Select barangay" : "No barangays available"}
-                          </option>
-                          {barangays.map((barangay) => <option key={barangay.code} value={barangay.code}>{barangay.name}</option>)}
-                        </select>
-                      </label>
-                    </div>
-                    <label className="block">
-                      <span className="mb-2 block text-sm font-semibold">House number and street</span>
-                      <input required type="text" autoComplete="street-address" placeholder="House number, building, or street" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none placeholder:text-[#6B7C8F]/65 focus:border-[#4A5BB0]" />
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">Preferred date</span>
-                        <input required type="date" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]" />
-                      </label>
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">Preferred time</span>
-                        <input required type="time" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]" />
-                      </label>
-                    </div>
-                    <label className="block">
-                      <span className="mb-2 block text-sm font-semibold">Contact number</span>
-                      <input required type="tel" autoComplete="tel" placeholder="+63 9XX XXX XXXX" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none placeholder:text-[#6B7C8F]/65 focus:border-[#4A5BB0]" />
-                    </label>
-                  </div>
-                ) : (
-                  <div className="space-y-4 border-l-4 border-[#F2C94C] pl-4">
-                    <label className="block">
-                      <span className="mb-2 block text-sm font-semibold">{donationMethod === "dropoff" ? "Drop-off location" : "Collection center"}</span>
-                      <select required value={selectedCenter} onChange={(event) => setSelectedCenter(event.target.value)} className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]">
-                        {collectionCenters.map((center) => <option key={center.name}>{center.name}</option>)}
-                      </select>
-                    </label>
-                    <div className="bg-white p-4 text-sm">
-                      <p className="font-bold">{activeCenter.name}</p>
-                      <p className="mt-2 flex gap-2 text-[#6B7C8F]"><Icon name="map" className="size-4 shrink-0" /> {activeCenter.address}</p>
-                      <p className="mt-2 flex gap-2 text-[#6B7C8F]"><Icon name="clock" className="size-4 shrink-0" /> {activeCenter.hours}</p>
-                      <p className="mt-2 flex gap-2 text-[#6B7C8F]"><Icon name="phone" className="size-4 shrink-0" /> {activeCenter.phone}</p>
-                      <p className="mt-3 text-xs font-semibold text-[#34418E]">Accepts {activeCenter.accepts.toLowerCase()}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">Date</span>
-                        <input required type="date" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]" />
-                      </label>
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold">Time</span>
-                        <input required type="time" className="w-full rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none focus:border-[#4A5BB0]" />
-                      </label>
-                    </div>
-                  </div>
-                )}
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold">Donation details</span>
-                  <textarea required rows={3} placeholder="Amount, quantity, sizes, condition, or other helpful details" className="w-full resize-none rounded-2xl border border-[#34418E]/12 bg-white px-4 py-3.5 outline-none placeholder:text-[#6B7C8F]/70 focus:border-[#4A5BB0]" />
-                </label>
-                <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-dashed border-[#34418E]/20 bg-white p-4 transition hover:border-[#4A5BB0]">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#EEF0F5] text-[#4A5BB0]"><Icon name="upload" /></span>
-                  <span><span className="block text-sm font-semibold">Add photos or receipts</span><span className="mt-1 block text-xs text-[#6B7C8F]">JPG, PNG or PDF, up to 10 MB</span></span>
-                  <input type="file" multiple accept="image/*,.pdf" className="sr-only" />
-                </label>
-                <label className="flex gap-3 text-sm leading-5 text-[#52677A]">
-                  <input required type="checkbox" className="mt-0.5 size-4 accent-[#4A5BB0]" />
-                  I confirm these details are accurate and agree to the verification process.
-                </label>
-                <button type="submit" className="w-full rounded-full bg-[#F2C94C] px-6 py-4 font-bold text-[#34418E] shadow-lg shadow-[#B88910]/20 transition hover:bg-[#F8DC7A]">Submit donation for review</button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
 
       {authMode && (
         <div className="fixed inset-0 z-50 grid place-items-end bg-[#1D2758]/55 p-0 backdrop-blur-sm sm:place-items-center sm:p-5" onMouseDown={(event) => event.target === event.currentTarget && setAuthMode(null)}>

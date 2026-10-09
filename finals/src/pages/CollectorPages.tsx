@@ -2,37 +2,33 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { driveData, type Drive } from "@/data/mockData";
+import { collectionCenters, driveData, type Drive } from "@/data/mockData";
 import { useApiResource } from "@/hooks/useApiResource";
 import { api, hasBackend } from "@/api/client";
 import { driveSchema, type DriveFormValues } from "@/schemas/forms";
 import { FormField, Notice, PageHeader } from "@/components/PagePrimitives";
 
 export function CollectionCentersPage() {
-  const centers = [
-    { id: "ctr-01", name: "DAMAYAN Hub", location: "Marikina City", hours: "8:00 AM–5:00 PM", accepts: "Clothes, food, hygiene, school supplies" },
-    { id: "ctr-02", name: "Bayanihan Center", location: "Pasig City", hours: "9:00 AM–6:00 PM", accepts: "Food, blankets, household, medical" },
-    { id: "ctr-03", name: "DAMAYAN Relief Point", location: "Quezon City", hours: "8:00 AM–4:00 PM", accepts: "Food, water, clothing, emergency supplies" },
-  ];
+  const centers = collectionCenters;
   return (
     <>
       <PageHeader eyebrow="Drop-off network" title="Collection centers" description="Find verified locations, opening hours, and accepted donation types." />
       <main className="mx-auto max-w-6xl px-5 py-10 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-3">{centers.map((center) => <article key={center.id} className="border-t-8 border-[#F2C94C] bg-white p-6"><p className="text-xs font-bold uppercase text-[#B88910]">{center.location}</p><h2 className="mt-3 text-2xl font-bold">{center.name}</h2><p className="mt-5 text-sm"><strong>Open:</strong> {center.hours}</p><p className="mt-3 text-sm leading-6 text-[#6B7C8F]"><strong className="text-[#34418E]">Accepts:</strong> {center.accepts}</p><button className="mt-6 border-b border-[#34418E] pb-1 text-sm font-bold">View directions</button></article>)}</div>
+        <div className="grid gap-5 md:grid-cols-3">{centers.map((center) => <article key={center.id} className="border-t-8 border-[#F2C94C] bg-white p-6"><p className="text-xs font-bold uppercase text-[#B88910]">{center.location}</p><h2 className="mt-3 text-2xl font-bold">{center.name}</h2><p className="mt-3 text-sm"><strong>Address:</strong> {center.address}</p><p className="mt-5 text-sm"><strong>Open:</strong> {center.hours}</p><p className="mt-3 text-sm leading-6 text-[#6B7C8F]"><strong className="text-[#34418E]">Accepts:</strong> {center.accepts}</p><button className="mt-6 border-b border-[#34418E] pb-1 text-sm font-bold">View directions</button></article>)}</div>
       </main>
     </>
   );
 }
 
 export function CollectorDashboardPage() {
-  const stats = [["24", "Pending approvals"], ["8", "Pickups today"], ["184", "Donations received"], ["72%", "Average goal"]];
+  const stats = [["24", "Pending approvals"], ["8", "Drop-offs today"], ["184", "Donations received"], ["72%", "Average goal"]];
   return (
     <>
       <PageHeader eyebrow="Organization portal" title="Collector dashboard" description="Community Table PH · Verified organization" action={<Link to="/collector/drives/new" className="rounded-full bg-[#F2C94C] px-5 py-3 font-bold">Create drive</Link>} />
       <main className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
         <div className="grid grid-cols-2 gap-px bg-[#34418E]/15 lg:grid-cols-4">{stats.map(([value, label]) => <div key={label} className="bg-white p-6"><strong className="text-3xl">{value}</strong><p className="mt-1 text-sm text-[#6B7C8F]">{label}</p></div>)}</div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
-          <section className="bg-white p-6"><h2 className="text-xl font-bold">Pickup queue</h2>{["Accept request from Quezon City", "Assign collector to Marikina", "Confirm receipt at Pasig Hub"].map((task, index) => <div key={task} className="flex items-center justify-between border-b py-4"><span>{task}</span><button className="text-sm font-bold">{index === 0 ? "Review" : "Update"}</button></div>)}</section>
+          <section className="bg-white p-6"><h2 className="text-xl font-bold">Drop-off queue</h2>{["Review incoming drop-off from Quezon City", "Confirm receipt at Marikina center", "Confirm receipt at Pasig Hub"].map((task, index) => <div key={task} className="flex items-center justify-between border-b py-4"><span>{task}</span><button className="text-sm font-bold">{index === 0 ? "Review" : "Update"}</button></div>)}</section>
           <section className="bg-[#34418E] p-6 text-white"><h2 className="text-xl font-bold">Impact summary</h2><p className="mt-8 text-5xl font-bold text-[#F2C94C]">1,248</p><p className="mt-2 text-white/60">families reached this quarter</p><div className="mt-8 h-2 bg-white/15"><div className="h-full w-3/4 bg-[#F2C94C]" /></div></section>
         </div>
       </main>
